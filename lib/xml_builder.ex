@@ -1,14 +1,20 @@
 defmodule XmlBuilder do
+	@unescaped_delimiter Application.fetch_env!(:xml_builder, XmlBuilder)[:indentation]
+	@unescaped_line_delimiter Application.fetch_env!(:xml_builder, XmlBuilder)[:line]
+
+	@delimiter Macro.unescape_string(@unescaped_delimiter)
+	@line_delimiter Macro.unescape_string(@unescaped_line_delimiter)
+
   @moduledoc """
   A module for generating XML
 
   ## Examples
 
       iex> XmlBuilder.doc(:person)
-      "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" ?>\\n<person/>"
+      "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" ?>#{@unescaped_line_delimiter}<person/>"
 
       iex> XmlBuilder.doc(:person, "Josh")
-      "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" ?>\\n<person>Josh</person>"
+      "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" ?>#{@unescaped_line_delimiter}<person>Josh</person>"
 
       iex> XmlBuilder.element(:person, "Josh") |> XmlBuilder.generate
       "<person>Josh</person>"
@@ -63,7 +69,7 @@ defmodule XmlBuilder do
     do: ~s|<?xml version="1.0" encoding="UTF-8" ?>|
 
   def generate(list, level) when is_list(list),
-    do: list |> Enum.map(&(generate(&1, level))) |> Enum.intersperse("\n") |> Enum.join
+    do: list |> Enum.map(&(generate(&1, level))) |> Enum.intersperse(@line_delimiter) |> Enum.join
 
   def generate({name, attrs, content}, level) when (attrs == nil or map_size(attrs) == 0) and (content==nil or (is_list(content) and length(content)==0)),
     do: "#{indent(level)}<#{name}/>"
@@ -75,19 +81,19 @@ defmodule XmlBuilder do
     do: "#{indent(level)}<#{name}>#{generate_content(content, level+1)}</#{name}>"
 
   def generate({name, attrs, content}, level) when (attrs == nil or map_size(attrs) == 0) and is_list(content),
-    do: "#{indent(level)}<#{name}>#{generate_content(content, level+1)}\n#{indent(level)}</#{name}>"
+    do: "#{indent(level)}<#{name}>#{generate_content(content, level+1)}#{@line_delimiter}#{indent(level)}</#{name}>"
 
   def generate({name, attrs, content}, level) when map_size(attrs) > 0 and not is_list(content),
     do: "#{indent(level)}<#{name} #{generate_attributes(attrs)}>#{generate_content(content, level+1)}</#{name}>"
 
   def generate({name, attrs, content}, level) when map_size(attrs) > 0 and is_list(content),
-    do: "#{indent(level)}<#{name} #{generate_attributes(attrs)}>#{generate_content(content, level+1)}\n#{indent(level)}</#{name}>"
+    do: "#{indent(level)}<#{name} #{generate_attributes(attrs)}>#{generate_content(content, level+1)}#{@line_delimiter}#{indent(level)}</#{name}>"
 
   defp tree_node(element_spec),
     do: element(element_spec)
 
   defp generate_content(children, level) when is_list(children),
-    do: "\n" <> Enum.map_join(children, "\n", &(generate(&1, level)))
+    do: @line_delimiter <> Enum.map_join(children, @line_delimiter, &(generate(&1, level)))
 
   defp generate_content(content, _level),
     do: escape(content)
@@ -96,7 +102,7 @@ defmodule XmlBuilder do
     do: Enum.map_join(attrs, " ", fn {k,v} -> "#{k}=#{quote_attribute_value(v)}" end)
 
   defp indent(level),
-    do: String.duplicate("\t", level)
+    do: String.duplicate(@delimiter, level)
 
   defp quote_attribute_value(val) when not is_bitstring(val),
     do: quote_attribute_value(to_string(val))
