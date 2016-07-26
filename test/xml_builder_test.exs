@@ -2,8 +2,8 @@ defmodule XmlBuilderTest do
   use ExUnit.Case
   doctest XmlBuilder
 
-	@unescaped_delimiter Application.fetch_env!(:xml_builder, XmlBuilder)[:indentation]
-	@unescaped_line_delimiter Application.fetch_env!(:xml_builder, XmlBuilder)[:line]
+	@unescaped_delimiter Application.fetch_env!(:xml_builder, :indentation)
+	@unescaped_line_delimiter Application.fetch_env!(:xml_builder, :line)
 
 	@delimiter Macro.unescape_string(@unescaped_delimiter)
 	@line_delimiter Macro.unescape_string(@unescaped_line_delimiter)
