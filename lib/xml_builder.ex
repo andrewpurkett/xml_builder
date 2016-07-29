@@ -1,9 +1,7 @@
 defmodule XmlBuilder do
-	@unescaped_delimiter ""
-	@unescaped_line_delimiter ""
-
-	@delimiter Macro.unescape_string(@unescaped_delimiter)
-	@line_delimiter Macro.unescape_string(@unescaped_line_delimiter)
+	@delimiter ""
+	@escaped_line_delimiter ""
+	@line_delimiter Macro.unescape_string(@escaped_line_delimiter)
 
   @moduledoc """
   A module for generating XML
@@ -11,10 +9,10 @@ defmodule XmlBuilder do
   ## Examples
 
       iex> XmlBuilder.doc(:person)
-      "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" ?>#{@unescaped_line_delimiter}<person/>"
+      "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" ?>#{@escaped_line_delimiter}<person/>"
 
       iex> XmlBuilder.doc(:person, "Josh")
-      "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" ?>#{@unescaped_line_delimiter}<person>Josh</person>"
+      "<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\" ?>#{@escaped_line_delimiter}<person>Josh</person>"
 
       iex> XmlBuilder.element(:person, "Josh") |> XmlBuilder.generate
       "<person>Josh</person>"

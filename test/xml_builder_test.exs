@@ -2,11 +2,9 @@ defmodule XmlBuilderTest do
   use ExUnit.Case
   doctest XmlBuilder
 
-	@unescaped_delimiter ""
-	@unescaped_line_delimiter ""
-
-	@delimiter Macro.unescape_string(@unescaped_delimiter)
-	@line_delimiter Macro.unescape_string(@unescaped_line_delimiter)
+  @delimiter ""
+  @escaped_line_delimiter ""
+  @line_delimiter Macro.unescape_string(@escaped_line_delimiter)
 
   import XmlBuilder, only: [doc: 1, doc: 2, doc: 3]
 
